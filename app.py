@@ -125,32 +125,37 @@ def create_task():
 def dashboard():
     if "user_id" not in session:
         return redirect("/login")
-
     conn = sqlite3.connect("database.db")
     conn.row_factory = sqlite3.Row
-
-    if session["role"] == "Admin":
+    projects = conn.execute("SELECT * FROM projects").fetchall()
+    users = conn.execute("SELECT * FROM users").fetchall()
+    if session.get("role") == "Admin":
         tasks = conn.execute("""
-            SELECT tasks.*, projects.name AS project_name, users.username
+            SELECT tasks.id, tasks.title, tasks.status,
+                   projects.name as project_name,
+                   users.username
             FROM tasks
             JOIN projects ON tasks.project_id = projects.id
             JOIN users ON tasks.assigned_to = users.id
         """).fetchall()
     else:
         tasks = conn.execute("""
-            SELECT tasks.*, projects.name AS project_name, users.username
+            SELECT tasks.id, tasks.title, tasks.status,
+                   projects.name as project_name,
+                   users.username
             FROM tasks
             JOIN projects ON tasks.project_id = projects.id
             JOIN users ON tasks.assigned_to = users.id
-            WHERE assigned_to=?
+            WHERE tasks.assigned_to = ?
         """, (session["user_id"],)).fetchall()
-
-    users = conn.execute("SELECT * FROM users").fetchall()
-    projects = conn.execute("SELECT * FROM projects").fetchall()
 
     conn.close()
 
-    return render_template("dashboard.html", tasks=tasks, users=users, projects=projects, role=session["role"])
+    return render_template("dashboard.html",
+                           projects=projects,
+                           users=users,
+                           tasks=tasks,
+                           role=session.get("role"))
 
 @app.route("/update_task/<int:id>")
 def update_task(id):
