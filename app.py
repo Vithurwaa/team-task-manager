@@ -76,6 +76,11 @@ def login():
 
     return render_template("login.html")
 
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/login")
+
 @app.route("/create_project", methods=["POST"])
 def create_project():
     if session.get("role") != "Admin":
