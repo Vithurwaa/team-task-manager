@@ -95,6 +95,7 @@
                         <th>User</th>
                         <th>Status</th>
                         <th>Action</th>
+                        <th>Remove</th>
                     </tr>
                 </thead>
 
@@ -115,7 +116,13 @@
 
                         <td>
                             <a href="/update_task/{{t.id}}" class="btn btn-sm btn-warning">Toggle</a>
-                        </td>
+                             {% if role == "Admin" %}
+                             <a href="/remove_user/{{t.user_id}}/{{t.project_id}}" 
+                             class="btn btn-sm btn-danger ms-2">
+       Remove
+    </a>
+    {% endif %}
+</td>
                     </tr>
                     {% endfor %}
                 </tbody>

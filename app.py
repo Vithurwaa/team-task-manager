@@ -125,13 +125,17 @@ def create_task():
 def dashboard():
     if "user_id" not in session:
         return redirect("/login")
+
     conn = sqlite3.connect("database.db")
     conn.row_factory = sqlite3.Row
+
     projects = conn.execute("SELECT * FROM projects").fetchall()
     users = conn.execute("SELECT * FROM users").fetchall()
+
     if session.get("role") == "Admin":
         tasks = conn.execute("""
             SELECT tasks.id, tasks.title, tasks.status,
+                   tasks.project_id, tasks.assigned_to as user_id,
                    projects.name as project_name,
                    users.username
             FROM tasks
@@ -141,6 +145,7 @@ def dashboard():
     else:
         tasks = conn.execute("""
             SELECT tasks.id, tasks.title, tasks.status,
+                   tasks.project_id, tasks.assigned_to as user_id,
                    projects.name as project_name,
                    users.username
             FROM tasks
@@ -171,6 +176,24 @@ def update_task(id):
     conn.execute(
         "UPDATE tasks SET status=? WHERE id=?",
         (new_status, id)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return redirect("/dashboard")
+
+@app.route("/remove_user/<int:user_id>/<int:project_id>")
+def remove_user(user_id, project_id):
+    if session.get("role") != "Admin":
+        return "Unauthorized"
+
+    conn = sqlite3.connect("database.db")
+
+    # Remove all tasks of that user in that project
+    conn.execute(
+        "DELETE FROM tasks WHERE assigned_to = ? AND project_id = ?",
+        (user_id, project_id)
     )
 
     conn.commit()
