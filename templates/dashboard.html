@@ -131,9 +131,11 @@
 
                         <td>
                             {% if t.status == "Completed" %}
-                                <span class="badge bg-success">Completed</span>
+                            <span class="badge rounded-pill bg-success px-3 py-2">Completed</span>
+                            {% elif t.due_date and t.due_date < current_date %}
+                            <span class="badge rounded-pill bg-danger px-3 py-2">Overdue</span>
                             {% else %}
-                                <span class="badge bg-warning text-dark">Pending</span>
+                            <span class="badge rounded-pill bg-warning text-dark px-3 py-2">Pending</span>
                             {% endif %}
                         </td>
 

@@ -187,21 +187,23 @@ def dashboard():
         JOIN users ON tasks.assigned_to = users.id
         GROUP BY users.username
     """).fetchall()
-
+    from datetime import date
+    current_date = date.today().isoformat()
     conn.close()
 
     return render_template(
-        "dashboard.html",
-        projects=projects,
-        users=users,
-        tasks=tasks,
-        role=session.get("role"),
-        total_tasks=total_tasks,
-        pending=pending,
-        completed=completed,
-        overdue=overdue,
-        tasks_per_user=tasks_per_user
-    )
+    "dashboard.html",
+    projects=projects,
+    users=users,
+    tasks=tasks,
+    role=session.get("role"),
+    total_tasks=total_tasks,
+    pending=pending,
+    completed=completed,
+    overdue=overdue,
+    tasks_per_user=tasks_per_user,
+    current_date=current_date 
+)
 
 # ---------------- UPDATE ----------------
 @app.route("/update_task/<int:id>")
