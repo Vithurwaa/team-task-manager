@@ -21,6 +21,14 @@
         <p class="text-muted">Manage your projects and track team tasks efficiently.</p>
     </div>
 
+    <!-- STATS -->
+    <div class="row text-center mb-4">
+        <div class="col"><div class="card p-2 shadow-sm">Total: {{total_tasks}}</div></div>
+        <div class="col"><div class="card p-2 shadow-sm">Pending: {{pending}}</div></div>
+        <div class="col"><div class="card p-2 shadow-sm">Completed: {{completed}}</div></div>
+        <div class="col"><div class="card p-2 shadow-sm">Overdue: {{overdue}}</div></div>
+    </div>
+
     {% if role == "Admin" %}
 
     <!-- CREATE PROJECT -->
@@ -39,13 +47,20 @@
         <div class="card-body">
             <h5 class="mb-3">📝 Create Task</h5>
 
-            <form method="POST" action="/create_task" class="row g-3">
+            <form method="POST" action="/create_task" class="row g-3 align-items-end">
 
-                <div class="col-md-4">
-                   <input class="form-control" name="title" placeholder="Task title" required>
+                <div class="col-md-2">
+                    <label class="form-label">Start</label>
+                    <input type="date" class="form-control" name="issue_date">
                 </div>
 
                 <div class="col-md-3">
+                    <label class="form-label">Task</label>
+                    <input class="form-control" name="title" placeholder="Task title" required>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">Project</label>
                     <select class="form-select" name="project_id" required>
                         {% for p in projects %}
                         <option value="{{p.id}}">{{p.name}}</option>
@@ -53,8 +68,9 @@
                     </select>
                 </div>
 
-                <div class="col-md-3">
-                   <select class="form-select" name="assigned_to" required>
+                <div class="col-md-2">
+                    <label class="form-label">User</label>
+                    <select class="form-select" name="assigned_to" required>
                         {% for u in users %}
                         <option value="{{u.id}}">{{u.username}}</option>
                         {% endfor %}
@@ -62,6 +78,11 @@
                 </div>
 
                 <div class="col-md-2">
+                    <label class="form-label">End</label>
+                    <input type="date" class="form-control" name="due_date">
+                </div>
+
+                <div class="col-md-1">
                     <button class="btn btn-success w-100">Add</button>
                 </div>
 
@@ -81,10 +102,9 @@
             </div>
 
             {% if tasks|length == 0 %}
-            <div class="text-center mt-4">
-                <p class="text-muted">No tasks yet</p>
-                <small class="text-muted">Start by creating a project and assigning tasks</small>
-            </div>
+                <div class="text-center mt-4">
+                    <p class="text-muted">No tasks yet</p>
+                </div>
             {% else %}
 
             <table class="table table-hover align-middle mt-3">
@@ -94,8 +114,11 @@
                         <th>Project</th>
                         <th>User</th>
                         <th>Status</th>
+                        <th>End Date</th>
                         <th>Action</th>
+                        {% if role == "Admin" %}
                         <th>Remove</th>
+                        {% endif %}
                     </tr>
                 </thead>
 
@@ -108,25 +131,37 @@
 
                         <td>
                             {% if t.status == "Completed" %}
-                                <span class="badge rounded-pill bg-success px-3 py-2">Completed</span>
+                                <span class="badge bg-success">Completed</span>
                             {% else %}
-                                <span class="badge rounded-pill bg-warning text-dark px-3 py-2">Pending</span>
+                                <span class="badge bg-warning text-dark">Pending</span>
                             {% endif %}
                         </td>
 
+                        <td>{{t.due_date}}</td>
+
                         <td>
                             <a href="/update_task/{{t.id}}" class="btn btn-sm btn-warning">Toggle</a>
-                             {% if role == "Admin" %}
-                             <a href="/remove_user/{{t.user_id}}/{{t.project_id}}" 
-                             class="btn btn-sm btn-danger ms-2">
-       Remove
-    </a>
-    {% endif %}
-</td>
+                        </td>
+
+                        {% if role == "Admin" %}
+                        <td>
+                            <a href="/remove_user/{{t.user_id}}/{{t.project_id}}" class="btn btn-sm btn-danger">
+                                Remove
+                            </a>
+                        </td>
+                        {% endif %}
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
+
+            <!-- TASKS PER USER -->
+            <h5 class="mt-4">Tasks per User</h5>
+            <ul>
+                {% for u in tasks_per_user %}
+                <li>{{u[0]}} - {{u[1]}}</li>
+                {% endfor %}
+            </ul>
 
             {% endif %}
 
