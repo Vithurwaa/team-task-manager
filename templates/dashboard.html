@@ -42,11 +42,11 @@
             <form method="POST" action="/create_task" class="row g-3">
 
                 <div class="col-md-4">
-                    <input class="form-control" name="title" placeholder="Task title">
+                   <input class="form-control" name="title" placeholder="Task title" required>
                 </div>
 
                 <div class="col-md-3">
-                    <select class="form-select" name="project_id">
+                    <select class="form-select" name="project_id" required>
                         {% for p in projects %}
                         <option value="{{p.id}}">{{p.name}}</option>
                         {% endfor %}
@@ -54,7 +54,7 @@
                 </div>
 
                 <div class="col-md-3">
-                    <select class="form-select" name="assigned_to">
+                   <select class="form-select" name="assigned_to" required>
                         {% for u in users %}
                         <option value="{{u.id}}">{{u.username}}</option>
                         {% endfor %}
